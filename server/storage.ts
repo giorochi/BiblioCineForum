@@ -18,7 +18,7 @@ import {
 } from "@shared/schema";
 import { eq, gte, desc, and } from "drizzle-orm";
 
-const DATABASE_URL = process.env.DATABASE_URL || "postgresql://postgres.znpxlyjuqhiwqwbqoxae:LuC9d!JfLd_twZP@aws-0-eu-central-1.pooler.supabase.com:6543/postgres";
+const DATABASE_URL = process.env.DATABASE_URL || "postgresql://postgres:LuC9d!JfLd_twZP@db.znpxlyjuqhiwqwbqoxae.supabase.co:5432/postgres";
 const sql = neon(DATABASE_URL);
 const db = drizzle(sql);
 
