@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 217 33% 17%; /* #1F2937 - cinema-surface */
+  --foreground: 0 0% 100%; /* white */
+  --muted: 220 13% 18%; /* #2D3748 */
+  --muted-foreground: 220 9% 46%; /* #6B7280 */
+  --popover: 217 33% 17%; /* #1F2937 */
+  --popover-foreground: 0 0% 100%; /* white */
+  --card: 217 33% 17%; /* #1F2937 */
+  --card-foreground: 0 0% 100%; /* white */
+  --border: 220 13% 18%; /* #374151 */
+  --input: 220 13% 18%; /* #374151 */
+  --primary: 0 84% 60%; /* #DC2626 - cinema-red */
+  --primary-foreground: 0 0% 100%; /* white */
+  --secondary: 217 33% 17%; /* #1F2937 */
+  --secondary-foreground: 0 0% 100%; /* white */
+  --accent: 43 96% 56%; /* #F59E0B - cinema-accent */
+  --accent-foreground: 217 33% 17%; /* #1F2937 */
+  --destructive: 0 84% 60%; /* #DC2626 */
+  --destructive-foreground: 0 0% 100%; /* white */
+  --ring: 0 84% 60%; /* #DC2626 */
+  --radius: 0.5rem;
+  
+  /* Custom cinema colors */
+  --cinema-red: 0 84% 60%; /* #DC2626 */
+  --cinema-dark: 217 33% 17%; /* #111827 */
+  --cinema-surface: 217 33% 17%; /* #1F2937 */
+  --cinema-accent: 43 96% 56%; /* #F59E0B */
+}
+
+.dark {
+  --background: 217 33% 17%;
+  --foreground: 0 0% 100%;
+  --muted: 220 13% 18%;
+  --muted-foreground: 220 9% 46%;
+  --popover: 217 33% 17%;
+  --popover-foreground: 0 0% 100%;
+  --card: 217 33% 17%;
+  --card-foreground: 0 0% 100%;
+  --border: 220 13% 18%;
+  --input: 220 13% 18%;
+  --primary: 0 84% 60%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 217 33% 17%;
+  --secondary-foreground: 0 0% 100%;
+  --accent: 43 96% 56%;
+  --accent-foreground: 217 33% 17%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 0 84% 60%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-cinema-dark text-foreground;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer utilities {
+  .bg-cinema-red {
+    background-color: hsl(var(--cinema-red));
+  }
+  
+  .bg-cinema-dark {
+    background-color: hsl(var(--cinema-dark));
+  }
+  
+  .bg-cinema-surface {
+    background-color: hsl(var(--cinema-surface));
+  }
+  
+  .text-cinema-red {
+    color: hsl(var(--cinema-red));
+  }
+  
+  .text-cinema-accent {
+    color: hsl(var(--cinema-accent));
+  }
+  
+  .border-cinema-red {
+    border-color: hsl(var(--cinema-red));
+  }
+  
+  .border-cinema-accent {
+    border-color: hsl(var(--cinema-accent));
+  }
+  
+  .film-card-hover {
+    transition: all 0.3s ease;
+  }
+  
+  .film-card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+  
+  .qr-scanner-overlay {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+  }
+}
