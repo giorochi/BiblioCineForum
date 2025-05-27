@@ -348,7 +348,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Static file serving for uploads
-  app.use('/uploads', express.static('uploads'));
+  app.use('/uploads', (req: any, res: any, next: any) => {
+    res.sendFile(req.path, { root: 'uploads' });
+  });
 
   const httpServer = createServer(app);
   return httpServer;

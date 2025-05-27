@@ -2,6 +2,20 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
+// Load environment variables
+import { readFileSync } from "fs";
+try {
+  const envFile = readFileSync(".env", "utf-8");
+  envFile.split("\n").forEach(line => {
+    const [key, value] = line.split("=");
+    if (key && value) {
+      process.env[key] = value;
+    }
+  });
+} catch (error) {
+  console.log("No .env file found or error reading it");
+}
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
