@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { Button } from "./button";
+
+import { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import { Camera, Square } from "lucide-react";
 
 interface QRScannerProps {
@@ -10,23 +11,31 @@ interface QRScannerProps {
 export function QRScanner({ onScan, onError }: QRScannerProps) {
   const [isScanning, setIsScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const startScanning = async () => {
     setIsScanning(true);
     setError(null);
 
     try {
-      // Simulate QR code scanning
-      // In a real implementation, you would use libraries like:
-      // - @zxing/library
-      // - qr-scanner
-      // - react-qr-scanner
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: "environment" } 
+      });
+      streamRef.current = stream;
       
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
+
+      // Simulate QR code detection for now
+      // In a real implementation, you would use libraries like @zxing/library
       setTimeout(() => {
         const mockQRCode = "CF" + Math.floor(Math.random() * 999999).toString().padStart(6, '0');
         onScan(mockQRCode);
-        setIsScanning(false);
-      }, 2000);
+        stopScanning();
+      }, 3000);
       
     } catch (err) {
       const errorMessage = "Errore nell'accesso alla fotocamera";
@@ -37,29 +46,46 @@ export function QRScanner({ onScan, onError }: QRScannerProps) {
   };
 
   const stopScanning = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
     setIsScanning(false);
   };
 
+  useEffect(() => {
+    return () => {
+      stopScanning();
+    };
+  }, []);
+
   return (
     <div className="flex flex-col items-center space-y-4">
-      <div className="relative w-64 h-64 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-600">
-        {!isScanning ? (
+      <div className="relative w-64 h-64 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-600 overflow-hidden">
+        {isScanning ? (
+          <video
+            ref={videoRef}
+            className="w-full h-full object-cover"
+            autoPlay
+            playsInline
+            muted
+          />
+        ) : (
           <div className="text-center">
             <Camera className="w-12 h-12 text-gray-400 mx-auto mb-2" />
             <p className="text-gray-400 text-sm">Premi per avviare la scansione</p>
-          </div>
-        ) : (
-          <div className="text-center">
-            <div className="animate-pulse">
-              <Square className="w-16 h-16 text-cinema-red mx-auto mb-2" />
-            </div>
-            <p className="text-white text-sm">Inquadra il QR Code...</p>
           </div>
         )}
         
         {error && (
           <div className="absolute inset-0 flex items-center justify-center bg-red-900 bg-opacity-75 rounded-lg">
             <p className="text-white text-sm text-center px-4">{error}</p>
+          </div>
+        )}
+
+        {isScanning && !error && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="border-2 border-cinema-red w-32 h-32 animate-pulse"></div>
           </div>
         )}
       </div>

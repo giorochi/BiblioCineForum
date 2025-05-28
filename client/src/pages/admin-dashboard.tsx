@@ -20,6 +20,7 @@ export default function AdminDashboard() {
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
   const [showAddFilmModal, setShowAddFilmModal] = useState(false);
   const [showQRScannerModal, setShowQRScannerModal] = useState(false);
+  const [selectedFilmId, setSelectedFilmId] = useState<number | null>(null);
 
   const { data: members } = useQuery({
     queryKey: ["/api/members"],
@@ -31,6 +32,11 @@ export default function AdminDashboard() {
 
   const { data: proposals } = useQuery({
     queryKey: ["/api/proposals"],
+  });
+
+  const { data: filmAttendance } = useQuery({
+    queryKey: ["/api/attendance/film", selectedFilmId],
+    enabled: !!selectedFilmId,
   });
 
   const renewMembershipMutation = useMutation({
@@ -186,6 +192,26 @@ export default function AdminDashboard() {
               }`}
             >
               Proposte Film
+            </button>
+            <button
+              onClick={() => setActiveTab("attendance")}
+              className={`py-4 px-1 text-sm font-medium border-b-2 ${
+                activeTab === "attendance"
+                  ? "border-cinema-accent text-cinema-accent"
+                  : "border-transparent text-gray-400 hover:text-gray-300"
+              }`}
+            >
+              Presenze
+            </button>
+            <button
+              onClick={() => setActiveTab("statistics")}
+              className={`py-4 px-1 text-sm font-medium border-b-2 ${
+                activeTab === "statistics"
+                  ? "border-cinema-accent text-cinema-accent"
+                  : "border-transparent text-gray-400 hover:text-gray-300"
+              }`}
+            >
+              Statistiche
             </button>
           </nav>
         </div>
@@ -374,6 +400,145 @@ export default function AdminDashboard() {
                   </p>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Attendance Management Tab */}
+        {activeTab === "attendance" && (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-white mb-6">Presenze per Film</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {films?.map((film: any) => (
+                <div key={film.id} className="bg-cinema-surface rounded-xl p-6 border border-gray-700">
+                  <h4 className="text-lg font-semibold text-white mb-2">{film.title}</h4>
+                  <p className="text-gray-300 text-sm mb-2">{film.director}</p>
+                  <p className="text-gray-400 text-sm mb-4">
+                    {format(new Date(film.scheduledDate), "dd MMMM yyyy, HH:mm", { locale: it })}
+                  </p>
+                  <Button
+                    onClick={() => setSelectedFilmId(film.id)}
+                    className="w-full bg-cinema-red hover:bg-red-700 text-white"
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    Visualizza Presenze
+                  </Button>
+                </div>
+              ))}
+            </div>
+
+            {selectedFilmId && filmAttendance && (
+              <div className="bg-cinema-surface rounded-xl p-6 border border-gray-700 mt-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="text-lg font-semibold text-white">
+                    Presenze per: {films?.find((f: any) => f.id === selectedFilmId)?.title}
+                  </h4>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setSelectedFilmId(null)}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  {filmAttendance.length > 0 ? (
+                    filmAttendance.map((attendance: any) => (
+                      <div key={attendance.id} className="flex justify-between items-center py-2 px-4 bg-gray-800 rounded">
+                        <span className="text-white">
+                          {attendance.memberFirstName} {attendance.memberLastName}
+                        </span>
+                        <span className="text-gray-400 text-sm">
+                          {format(new Date(attendance.attendedAt), "dd/MM/yyyy HH:mm")}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-400 text-center py-4">Nessuna presenza registrata</p>
+                  )}
+                </div>
+                <div className="mt-4 text-center">
+                  <Badge className="bg-blue-600 text-white">
+                    Totale presenti: {filmAttendance.length}
+                  </Badge>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Statistics Tab */}
+        {activeTab === "statistics" && (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-white mb-6">Statistiche</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="bg-cinema-surface rounded-xl p-6 border border-gray-700">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-cinema-accent mb-2">
+                    {members?.length || 0}
+                  </div>
+                  <div className="text-gray-400">Tesserati Totali</div>
+                </div>
+              </div>
+              <div className="bg-cinema-surface rounded-xl p-6 border border-gray-700">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-green-400 mb-2">
+                    {members?.filter((m: any) => {
+                      const expiry = new Date(m.expiryDate);
+                      return expiry > new Date();
+                    }).length || 0}
+                  </div>
+                  <div className="text-gray-400">Tessere Attive</div>
+                </div>
+              </div>
+              <div className="bg-cinema-surface rounded-xl p-6 border border-gray-700">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-400 mb-2">
+                    {films?.length || 0}
+                  </div>
+                  <div className="text-gray-400">Film Programmati</div>
+                </div>
+              </div>
+              <div className="bg-cinema-surface rounded-xl p-6 border border-gray-700">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-yellow-400 mb-2">
+                    {proposals?.filter((p: any) => p.status === "pending").length || 0}
+                  </div>
+                  <div className="text-gray-400">Proposte in Attesa</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-cinema-surface rounded-xl p-6 border border-gray-700">
+              <h4 className="text-lg font-semibold text-white mb-4">Frequenza per Film</h4>
+              <div className="space-y-4">
+                {films?.map((film: any) => (
+                  <div key={film.id} className="border-b border-gray-700 pb-4 last:border-b-0">
+                    <div className="flex justify-between items-center mb-2">
+                      <div>
+                        <span className="text-white font-medium">{film.title}</span>
+                        <span className="text-gray-400 text-sm ml-2">({film.director})</span>
+                      </div>
+                      <Badge className="bg-cinema-red text-white">
+                        Data: {format(new Date(film.scheduledDate), "dd/MM/yyyy")}
+                      </Badge>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-2">
+                      <div 
+                        className="bg-cinema-accent h-2 rounded-full" 
+                        style={{ 
+                          width: `${Math.min(100, ((film.attendanceCount || 0) / (members?.length || 1)) * 100)}%` 
+                        }}
+                      ></div>
+                    </div>
+                    <div className="text-sm text-gray-400 mt-1">
+                      Presenti: {film.attendanceCount || 0} / {members?.length || 0} tesserati
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}

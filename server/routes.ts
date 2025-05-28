@@ -202,7 +202,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/films", authenticateToken, async (req, res) => {
     try {
       const films = await storage.getAllFilms();
-      res.json(films);
+      
+      // Add attendance count for each film
+      const filmsWithStats = await Promise.all(
+        films.map(async (film: any) => {
+          const attendance = await storage.getFilmAttendance(film.id);
+          return {
+            ...film,
+            attendanceCount: attendance.length
+          };
+        })
+      );
+      
+      res.json(filmsWithStats);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch films" });
     }

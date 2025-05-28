@@ -148,7 +148,7 @@ export class DatabaseStorage implements IStorage {
       .from(filmProposals)
       .leftJoin(members, eq(filmProposals.memberId, members.id))
       .orderBy(desc(filmProposals.createdAt));
-    
+
     return proposals.map(p => ({
       ...p,
       memberName: `${p.memberName} ${members.lastName}`
@@ -178,7 +178,7 @@ export class DatabaseStorage implements IStorage {
       .leftJoin(films, eq(attendance.filmId, films.id))
       .where(eq(attendance.memberId, memberId))
       .orderBy(desc(attendance.attendedAt));
-    
+
     return attendanceRecords.map(record => ({
       ...record,
       filmDate: new Date(record.filmDate)
@@ -198,7 +198,7 @@ export class DatabaseStorage implements IStorage {
       .leftJoin(members, eq(attendance.memberId, members.id))
       .where(eq(attendance.filmId, filmId))
       .orderBy(desc(attendance.attendedAt));
-    
+
     return attendanceRecords.map(record => ({
       ...record,
       memberName: `${record.memberName} ${members.lastName}`

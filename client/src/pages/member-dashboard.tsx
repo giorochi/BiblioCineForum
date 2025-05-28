@@ -94,7 +94,46 @@ export default function MemberDashboard() {
             </div>
             <div className="bg-white p-4 rounded-xl">
               {user?.qrCode && (
-                <img src={user.qrCode} alt="QR Code Tessera" className="w-24 h-24" />
+                <div className="text-center">
+                  <img src={user.qrCode} alt="QR Code Tessera" className="w-24 h-24 mb-2" />
+                  <div className="flex space-x-2">
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        const link = document.createElement('a');
+                        link.href = user.qrCode;
+                        link.download = `qr-${user.membershipCode}.png`;
+                        link.click();
+                      }}
+                      className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1"
+                    >
+                      Scarica
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        const printWindow = window.open('', '_blank');
+                        if (printWindow) {
+                          printWindow.document.write(`
+                            <html>
+                              <head><title>QR Code - ${user.membershipCode}</title></head>
+                              <body style="text-align: center; margin: 50px;">
+                                <h2>${user.fullName}</h2>
+                                <p>Codice Tessera: ${user.membershipCode}</p>
+                                <img src="${user.qrCode}" style="width: 200px; height: 200px;" />
+                              </body>
+                            </html>
+                          `);
+                          printWindow.document.close();
+                          printWindow.print();
+                        }
+                      }}
+                      className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1"
+                    >
+                      Stampa
+                    </Button>
+                  </div>
+                </div>
               )}
             </div>
           </div>

@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
     const savedUser = localStorage.getItem("user");
-    
+
     if (savedToken && savedUser) {
       setToken(savedToken);
       setUser(JSON.parse(savedUser));
@@ -40,12 +40,12 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
         username,
         password,
       });
-      
+
       const data = await response.json();
-      
+
       setToken(data.token);
       setUser(data.user);
-      
+
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
     } catch (error) {
