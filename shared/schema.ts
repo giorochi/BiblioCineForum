@@ -55,6 +55,8 @@ export const admins = pgTable("admins", {
 
 export const insertMemberSchema = createInsertSchema(members).omit({
   id: true,
+  username: true,
+  password: true,
   membershipCode: true,
   qrCode: true,
   expiryDate: true,

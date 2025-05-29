@@ -49,6 +49,24 @@ const generateMembershipCode = (): string => {
   return `${prefix}${number}`;
 };
 
+// Generate username from name and random number
+const generateUsername = (firstName: string, lastName: string): string => {
+  const cleanFirstName = firstName.toLowerCase().replace(/[^a-z]/g, '');
+  const cleanLastName = lastName.toLowerCase().replace(/[^a-z]/g, '');
+  const randomNum = Math.floor(Math.random() * 999).toString().padStart(3, '0');
+  return `${cleanFirstName}${cleanLastName}${randomNum}`;
+};
+
+// Generate random password
+const generatePassword = (): string => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let password = '';
+  for (let i = 0; i < 8; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+};
+
 // Generate QR code
 const generateQRCode = async (data: string): Promise<string> => {
   try {
@@ -125,20 +143,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const memberData = insertMemberSchema.parse(req.body);
-      const hashedPassword = await bcrypt.hash(memberData.password, 10);
+      const username = generateUsername(memberData.firstName, memberData.lastName);
+      const plainPassword = generatePassword();
+      const hashedPassword = await bcrypt.hash(plainPassword, 10);
       const membershipCode = generateMembershipCode();
       const qrCode = await generateQRCode(membershipCode);
       const expiryDate = calculateExpiryDate();
 
       const member = await storage.createMember({
         ...memberData,
+        username,
         password: hashedPassword,
         membershipCode,
         qrCode,
         expiryDate
       });
 
-      res.json(member);
+      // Return member with plain password for display
+      res.json({
+        ...member,
+        plainPassword // Include plain password in response for admin to see
+      });
     } catch (error) {
       console.error("Error creating member:", error);
       if (error instanceof z.ZodError) {

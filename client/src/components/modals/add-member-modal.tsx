@@ -18,9 +18,7 @@ export default function AddMemberModal({ open, onOpenChange }: AddMemberModalPro
     lastName: "",
     birthDate: "",
     taxCode: "",
-    email: "",
-    username: "",
-    password: "",
+    email: ""
   });
 
   const { toast } = useToast();
@@ -30,21 +28,20 @@ export default function AddMemberModal({ open, onOpenChange }: AddMemberModalPro
     mutationFn: async (data: typeof formData) => {
       return apiRequest("POST", "/api/members", data);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/members"] });
-      toast({
-        title: "Successo",
-        description: "Nuovo tesserato creato con successo",
-      });
-      onOpenChange(false);
       setFormData({
         firstName: "",
         lastName: "",
         birthDate: "",
         taxCode: "",
-        email: "",
-        username: "",
-        password: "",
+        email: ""
+      });
+      onOpenChange(false);
+      toast({
+        title: "Tesserato creato con successo",
+        description: `Username: ${data.username} - Password: ${data.plainPassword}`,
+        duration: 10000, // Show for 10 seconds so admin can note the credentials
       });
     },
     onError: () => {
@@ -137,30 +134,6 @@ export default function AddMemberModal({ open, onOpenChange }: AddMemberModalPro
             />
           </div>
 
-          <div>
-            <Label className="text-gray-300 mb-2">Username</Label>
-            <Input
-              type="text"
-              value={formData.username}
-              onChange={(e) => handleChange("username", e.target.value)}
-              className="bg-gray-800 border-gray-600 text-white placeholder-gray-400"
-              placeholder="username"
-              required
-            />
-          </div>
-
-          <div>
-            <Label className="text-gray-300 mb-2">Password</Label>
-            <Input
-              type="password"
-              value={formData.password}
-              onChange={(e) => handleChange("password", e.target.value)}
-              className="bg-gray-800 border-gray-600 text-white placeholder-gray-400"
-              placeholder="password"
-              required
-            />
-          </div>
-
           <div className="flex justify-end space-x-3 pt-4">
             <Button 
               type="button" 
@@ -183,3 +156,7 @@ export default function AddMemberModal({ open, onOpenChange }: AddMemberModalPro
     </Dialog>
   );
 }
+```
+
+```
+</replit_final_file>
