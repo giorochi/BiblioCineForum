@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,11 +30,11 @@ export default function AddFilmModal({ open, onOpenChange }: AddFilmModalProps) 
   const createFilmMutation = useMutation({
     mutationFn: async ({ filmData, file }: { filmData: typeof formData; file: File | null }) => {
       const formDataToSend = new FormData();
-      
+
       Object.entries(filmData).forEach(([key, value]) => {
         formDataToSend.append(key, value);
       });
-      
+
       if (file) {
         formDataToSend.append("coverImage", file);
       }
@@ -105,8 +105,11 @@ export default function AddFilmModal({ open, onOpenChange }: AddFilmModalProps) 
       <DialogContent className="bg-cinema-surface border-gray-700 text-white max-w-lg max-h-screen overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Aggiungi Film</DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Inserisci i dettagli del film da aggiungere alla programmazione
+          </DialogDescription>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label className="text-gray-300 mb-2">Titolo</Label>
@@ -119,7 +122,7 @@ export default function AddFilmModal({ open, onOpenChange }: AddFilmModalProps) 
               required
             />
           </div>
-          
+
           <div>
             <Label className="text-gray-300 mb-2">Regista</Label>
             <Input
@@ -131,7 +134,7 @@ export default function AddFilmModal({ open, onOpenChange }: AddFilmModalProps) 
               required
             />
           </div>
-          
+
           <div>
             <Label className="text-gray-300 mb-2">Cast Principale</Label>
             <Input
@@ -143,7 +146,7 @@ export default function AddFilmModal({ open, onOpenChange }: AddFilmModalProps) 
               required
             />
           </div>
-          
+
           <div>
             <Label className="text-gray-300 mb-2">Trama</Label>
             <Textarea
@@ -155,7 +158,7 @@ export default function AddFilmModal({ open, onOpenChange }: AddFilmModalProps) 
               required
             />
           </div>
-          
+
           <div>
             <Label className="text-gray-300 mb-2">Data e Ora Proiezione</Label>
             <Input
@@ -166,7 +169,7 @@ export default function AddFilmModal({ open, onOpenChange }: AddFilmModalProps) 
               required
             />
           </div>
-          
+
           <div>
             <Label className="text-gray-300 mb-2">Copertina Film</Label>
             <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center">
@@ -191,7 +194,7 @@ export default function AddFilmModal({ open, onOpenChange }: AddFilmModalProps) 
               </Button>
             </div>
           </div>
-          
+
           <div className="flex justify-end space-x-3 pt-4">
             <Button 
               type="button" 

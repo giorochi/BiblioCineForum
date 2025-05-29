@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -70,8 +70,11 @@ export default function AddMemberModal({ open, onOpenChange }: AddMemberModalPro
       <DialogContent className="bg-cinema-surface border-gray-700 text-white max-w-lg max-h-screen overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Nuovo Tesserato</DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Compila i campi per registrare un nuovo tesserato al circolo del cinema
+          </DialogDescription>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -97,7 +100,7 @@ export default function AddMemberModal({ open, onOpenChange }: AddMemberModalPro
               />
             </div>
           </div>
-          
+
           <div>
             <Label className="text-gray-300 mb-2">Data di Nascita</Label>
             <Input
@@ -108,7 +111,7 @@ export default function AddMemberModal({ open, onOpenChange }: AddMemberModalPro
               required
             />
           </div>
-          
+
           <div>
             <Label className="text-gray-300 mb-2">Codice Fiscale</Label>
             <Input
@@ -157,7 +160,7 @@ export default function AddMemberModal({ open, onOpenChange }: AddMemberModalPro
               required
             />
           </div>
-          
+
           <div className="flex justify-end space-x-3 pt-4">
             <Button 
               type="button" 
