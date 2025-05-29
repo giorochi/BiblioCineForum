@@ -144,8 +144,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Dati non validi", errors: error.errors });
       }
-      if (error.message?.includes('duplicate') || error.message?.includes('unique')) {
-        return res.status(400).json({ message: "Email, username o codice fiscale già esistente" });
+      // Handle specific database constraint errors
+      if (error.message === 'USERNAME_EXISTS') {
+        return res.status(400).json({ message: "Username già esistente" });
+      } else if (error.message === 'TAX_CODE_EXISTS') {
+        return res.status(400).json({ message: "Codice fiscale già esistente" });
+      } else if (error.message === 'MEMBERSHIP_CODE_EXISTS') {
+        return res.status(400).json({ message: "Codice tessera già esistente" });
+      } else if (error.message === 'DUPLICATE_ENTRY') {
+        return res.status(400).json({ message: "Dati duplicati già esistenti" });
+      }
+
+      // Fallback for other duplicate key errors
+      if (error.message?.includes('duplicate') || error.message?.includes('unique') || error.code === '23505') {
+        return res.status(400).json({ message: "Username o codice fiscale già esistente" });
       }
       res.status(500).json({ message: "Errore nella creazione del tesserato" });
     }
@@ -172,7 +184,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const memberId = parseInt(req.params.id);
       const expiryDate = calculateExpiryDate();
-      
+
       await storage.updateMemberExpiry(memberId, expiryDate);
       res.json({ message: "Membership renewed successfully" });
     } catch (error) {
@@ -206,7 +218,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/films", authenticateToken, async (req, res) => {
     try {
       const films = await storage.getAllFilms();
-      
+
       // Add attendance count for each film
       const filmsWithStats = await Promise.all(
         films.map(async (film: any) => {
@@ -217,7 +229,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           };
         })
       );
-      
+
       res.json(filmsWithStats);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch films" });
@@ -320,7 +332,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { membershipCode, filmId } = req.body;
-      
+
       const member = await storage.getMemberByMembershipCode(membershipCode);
       if (!member) {
         return res.status(404).json({ message: "Member not found" });
@@ -336,7 +348,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/attendance/member/:memberId", authenticateToken, async (req, res) => {
     try {
       const memberId = parseInt(req.params.memberId);
-      
+
       // Members can only view their own attendance, admins can view any
       if (req.user.role === 'member' && req.user.id !== memberId) {
         return res.status(403).json({ message: "Access denied" });
