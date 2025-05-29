@@ -140,10 +140,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(member);
     } catch (error) {
+      console.error("Error creating member:", error);
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+        return res.status(400).json({ message: "Dati non validi", errors: error.errors });
       }
-      res.status(500).json({ message: "Failed to create member" });
+      if (error.message?.includes('duplicate') || error.message?.includes('unique')) {
+        return res.status(400).json({ message: "Email, username o codice fiscale già esistente" });
+      }
+      res.status(500).json({ message: "Errore nella creazione del tesserato" });
     }
   });
 

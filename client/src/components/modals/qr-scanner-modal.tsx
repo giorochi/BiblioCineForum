@@ -1,14 +1,15 @@
+
 import { useState } from "react";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X } from "lucide-react";
+import { QRScanner } from "@/components/ui/qr-scanner";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { QRScanner } from "@/components/ui/qr-scanner";
+import { Camera, Type } from "lucide-react";
 
 interface QRScannerModalProps {
   open: boolean;
@@ -19,6 +20,7 @@ export default function QRScannerModal({ open, onOpenChange }: QRScannerModalPro
   const [manualCode, setManualCode] = useState("");
   const [selectedFilmId, setSelectedFilmId] = useState<string>("");
   const [scannedCode, setScannedCode] = useState<string>("");
+  const [scanMode, setScanMode] = useState<"camera" | "manual">("camera");
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -53,6 +55,10 @@ export default function QRScannerModal({ open, onOpenChange }: QRScannerModalPro
   const handleQRScan = (result: string) => {
     setScannedCode(result);
     setManualCode(result);
+    toast({
+      title: "QR Code Scansionato",
+      description: `Codice tessera: ${result}`,
+    });
   };
 
   const handleMarkAttendance = () => {
@@ -82,70 +88,105 @@ export default function QRScannerModal({ open, onOpenChange }: QRScannerModalPro
     });
   };
 
+  const handleClose = () => {
+    setManualCode("");
+    setScannedCode("");
+    setSelectedFilmId("");
+    setScanMode("camera");
+    onOpenChange(false);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-cinema-surface border-gray-700 text-white max-w-md qr-scanner-overlay">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="bg-cinema-surface border-gray-700 text-white max-w-lg">
         <DialogHeader>
-          <div className="flex justify-between items-center">
-            <DialogTitle className="text-xl font-semibold">Scansiona QR Code</DialogTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-              className="text-gray-400 hover:text-white"
-            >
-              <X className="w-6 h-6" />
-            </Button>
-          </div>
+          <DialogTitle className="text-xl font-semibold">Registra Presenza</DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Scansiona il QR code del tesserato o inserisci manualmente il codice tessera
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-6">
+          {/* Mode Selection */}
+          <div className="flex space-x-2">
+            <Button
+              variant={scanMode === "camera" ? "default" : "outline"}
+              onClick={() => setScanMode("camera")}
+              className="flex-1"
+            >
+              <Camera className="w-4 h-4 mr-2" />
+              Camera
+            </Button>
+            <Button
+              variant={scanMode === "manual" ? "default" : "outline"}
+              onClick={() => setScanMode("manual")}
+              className="flex-1"
+            >
+              <Type className="w-4 h-4 mr-2" />
+              Manuale
+            </Button>
+          </div>
+
+          {/* QR Scanner */}
+          {scanMode === "camera" && (
+            <div className="space-y-4">
+              <QRScanner onScan={handleQRScan} />
+              {scannedCode && (
+                <div className="bg-green-800 p-3 rounded">
+                  <p className="text-green-200 text-sm">
+                    <strong>Codice scansionato:</strong> {scannedCode}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Manual Input */}
+          {scanMode === "manual" && (
+            <div>
+              <Label className="text-gray-300 mb-2">Codice Tessera</Label>
+              <Input
+                type="text"
+                value={manualCode}
+                onChange={(e) => setManualCode(e.target.value)}
+                className="bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                placeholder="Inserisci codice tessera (es. CF123456)"
+              />
+            </div>
+          )}
+
           {/* Film Selection */}
           <div>
             <Label className="text-gray-300 mb-2">Seleziona Film</Label>
             <Select value={selectedFilmId} onValueChange={setSelectedFilmId}>
               <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
-                <SelectValue placeholder="Scegli il film..." />
+                <SelectValue placeholder="Scegli un film..." />
               </SelectTrigger>
               <SelectContent className="bg-gray-800 border-gray-600">
                 {upcomingFilms?.map((film: any) => (
                   <SelectItem key={film.id} value={film.id.toString()}>
-                    {film.title}
+                    {film.title} - {new Date(film.scheduledDate).toLocaleDateString("it-IT")}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* QR Scanner */}
-          <QRScanner 
-            onScan={handleQRScan}
-            onError={(error) => {
-              toast({
-                title: "Errore Scanner",
-                description: error,
-                variant: "destructive",
-              });
-            }}
-          />
-
-          {/* Manual Input Alternative */}
-          <div className="border-t border-gray-700 pt-4">
-            <p className="text-gray-400 text-sm mb-3">Oppure inserisci manualmente:</p>
-            <Label className="text-gray-300 mb-2">Codice Tessera</Label>
-            <Input
-              type="text"
-              value={manualCode}
-              onChange={(e) => setManualCode(e.target.value)}
-              placeholder="CF123456"
-              className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 mb-4"
-            />
-            <Button
-              onClick={handleMarkAttendance}
-              disabled={markAttendanceMutation.isPending}
-              className="w-full bg-cinema-red hover:bg-red-700 text-white"
+          {/* Action Buttons */}
+          <div className="flex justify-end space-x-3 pt-4">
+            <Button 
+              variant="ghost"
+              onClick={handleClose}
+              className="text-gray-400 hover:text-white"
             >
-              {markAttendanceMutation.isPending ? "Registrazione..." : "Segna Presenza"}
+              Annulla
+            </Button>
+            <Button 
+              onClick={handleMarkAttendance}
+              disabled={markAttendanceMutation.isPending || (!scannedCode && !manualCode) || !selectedFilmId}
+              className="bg-cinema-red hover:bg-red-700 text-white"
+            >
+              {markAttendanceMutation.isPending ? "Registrazione..." : "Registra Presenza"}
             </Button>
           </div>
         </div>

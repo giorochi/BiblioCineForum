@@ -80,14 +80,7 @@ export default function Login() {
           </CardContent>
         </Card>
 
-        {/* Admin Credentials Display */}
-        <div className="mt-6 bg-cinema-surface rounded-lg p-4 border border-gray-700">
-          <h3 className="text-sm font-semibold text-cinema-accent mb-2">Credenziali Admin</h3>
-          <div className="text-xs text-gray-300 space-y-1">
-            <p><span className="font-medium">Username:</span> admin</p>
-            <p><span className="font-medium">Password:</span> CineForum2024!</p>
-          </div>
-        </div>
+        
       </div>
     </div>
   );

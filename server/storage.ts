@@ -143,15 +143,22 @@ export class DatabaseStorage implements IStorage {
         reason: filmProposals.reason,
         status: filmProposals.status,
         createdAt: filmProposals.createdAt,
-        memberName: members.firstName
+        memberFirstName: members.firstName,
+        memberLastName: members.lastName
       })
       .from(filmProposals)
       .leftJoin(members, eq(filmProposals.memberId, members.id))
       .orderBy(desc(filmProposals.createdAt));
 
     return proposals.map(p => ({
-      ...p,
-      memberName: `${p.memberName} ${members.lastName}`
+      id: p.id,
+      memberId: p.memberId,
+      title: p.title,
+      director: p.director,
+      reason: p.reason,
+      status: p.status,
+      createdAt: p.createdAt,
+      memberName: `${p.memberFirstName || ''} ${p.memberLastName || ''}`.trim()
     }));
   }
 
@@ -185,24 +192,22 @@ export class DatabaseStorage implements IStorage {
     }));
   }
 
-  async getFilmAttendance(filmId: number): Promise<(Attendance & { memberName: string })[]> {
+  async getFilmAttendance(filmId: number): Promise<(Attendance & { memberFirstName: string; memberLastName: string })[]> {
     const attendanceRecords = await db
       .select({
         id: attendance.id,
         memberId: attendance.memberId,
         filmId: attendance.filmId,
         attendedAt: attendance.attendedAt,
-        memberName: members.firstName
+        memberFirstName: members.firstName,
+        memberLastName: members.lastName
       })
       .from(attendance)
       .leftJoin(members, eq(attendance.memberId, members.id))
       .where(eq(attendance.filmId, filmId))
       .orderBy(desc(attendance.attendedAt));
 
-    return attendanceRecords.map(record => ({
-      ...record,
-      memberName: `${record.memberName} ${members.lastName}`
-    }));
+    return attendanceRecords;
   }
 
   async createAdmin(admin: InsertAdmin): Promise<Admin> {
