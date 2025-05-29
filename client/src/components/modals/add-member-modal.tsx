@@ -156,7 +156,3 @@ export default function AddMemberModal({ open, onOpenChange }: AddMemberModalPro
     </Dialog>
   );
 }
-```
-
-```
-</replit_final_file>
