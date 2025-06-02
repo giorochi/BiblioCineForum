@@ -9,31 +9,29 @@ async function throwIfResNotOk(res: Response) {
 
 export async function apiRequest(
   method: string,
-  url: string,
-  data?: unknown | undefined,
+  path: string,
+  body?: any
 ): Promise<Response> {
-  const headers: Record<string, string> = {};
-  
-  // Add authorization header if token exists
   const token = localStorage.getItem("token");
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
-  
-  // Add content type for requests with data
-  if (data) {
-    headers["Content-Type"] = "application/json";
-  }
 
-  const res = await fetch(url, {
+  const response = await fetch(path, {
     method,
-    headers,
-    body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
+    ...(body && { body: JSON.stringify(body) }),
   });
 
-  await throwIfResNotOk(res);
-  return res;
+  if (!response.ok) {
+    // Dispatch custom event for auth errors
+    if (response.status === 401 || response.status === 403) {
+      window.dispatchEvent(new CustomEvent('apiError', { detail: { status: response.status } }));
+    }
+    throw new Error(`Request failed: ${response.statusText}`);
+  }
+
+  return response;
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
@@ -43,7 +41,7 @@ export const getQueryFn: <T>(options: {
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const headers: Record<string, string> = {};
-    
+
     // Add authorization header if token exists
     const token = localStorage.getItem("token");
     if (token) {

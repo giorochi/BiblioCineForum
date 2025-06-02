@@ -34,6 +34,23 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
     }
   }, []);
 
+  // Intercept API requests to handle token expiration
+  useEffect(() => {
+    const handleApiError = (error: any) => {
+      if (error.status === 401 || error.status === 403) {
+        // Token is invalid or expired, logout user
+        logout();
+      }
+    };
+
+    // This will be used by the queryClient to handle errors
+    window.addEventListener('apiError', handleApiError as EventListener);
+
+    return () => {
+      window.removeEventListener('apiError', handleApiError as EventListener);
+    };
+  }, []);
+
   const login = async (username: string, password: string) => {
     try {
       const response = await apiRequest("POST", "/api/auth/login", {

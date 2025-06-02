@@ -30,12 +30,18 @@ const authenticateToken = (req: any, res: any, next: any) => {
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
-    return res.status(401).json({ message: 'Access token required' });
+    return res.status(401).json({ message: 'Token di accesso richiesto' });
   }
 
   jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
     if (err) {
-      return res.status(403).json({ message: 'Invalid token' });
+      console.error('Token verification error:', err.message);
+      if (err.name === 'TokenExpiredError') {
+        return res.status(401).json({ message: 'Token scaduto' });
+      } else if (err.name === 'JsonWebTokenError') {
+        return res.status(403).json({ message: 'Token non valido' });
+      }
+      return res.status(403).json({ message: 'Errore di autenticazione' });
     }
     req.user = user;
     next();
