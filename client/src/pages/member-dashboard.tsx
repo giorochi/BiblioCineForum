@@ -2,16 +2,19 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Film, LogOut, Plus, CheckCircle } from "lucide-react";
+import { Film, LogOut, Plus, CheckCircle, Eye } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import ProposalModal from "@/components/modals/proposal-modal";
+import ViewFilmModal from "@/components/modals/view-film-modal";
 
 export default function MemberDashboard() {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState("films");
   const [showProposalModal, setShowProposalModal] = useState(false);
+  const [showViewFilmModal, setShowViewFilmModal] = useState(false);
+  const [selectedFilm, setSelectedFilm] = useState<any>(null);
 
   const { data: upcomingFilms } = useQuery({
     queryKey: ["/api/films/upcoming"],
@@ -44,6 +47,11 @@ export default function MemberDashboard() {
 
   const hasAttended = (filmId: number) => {
     return myAttendance?.some((attendance: any) => attendance.filmId === filmId);
+  };
+
+  const handleViewFilm = (film: any) => {
+    setSelectedFilm(film);
+    setShowViewFilmModal(true);
   };
 
   return (
@@ -204,9 +212,20 @@ export default function MemberDashboard() {
                       <span className="text-cinema-accent font-medium">
                         {format(new Date(film.scheduledDate), "EEEE dd MMMM yyyy, 'ore' HH:mm", { locale: it })}
                       </span>
-                      <span className="text-xs text-gray-500">
-                        {hasAttended(film.id) ? "Partecipato" : "Non ancora partecipato"}
-                      </span>
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleViewFilm(film)}
+                          className="text-cinema-accent hover:text-yellow-400"
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          Dettagli
+                        </Button>
+                        <span className="text-xs text-gray-500">
+                          {hasAttended(film.id) ? "Partecipato" : "Non ancora partecipato"}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -243,10 +262,21 @@ export default function MemberDashboard() {
                       <span className="text-gray-400">
                         Visto il {format(new Date(film.scheduledDate), "dd MMMM yyyy", { locale: it })}
                       </span>
-                      <Badge className="bg-green-600 text-white">
-                        <CheckCircle className="w-3 h-3 mr-1" />
-                        Partecipato
-                      </Badge>
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleViewFilm(film)}
+                          className="text-cinema-accent hover:text-yellow-400"
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          Dettagli
+                        </Button>
+                        <Badge className="bg-green-600 text-white">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Partecipato
+                        </Badge>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -292,6 +322,11 @@ export default function MemberDashboard() {
       <ProposalModal 
         open={showProposalModal} 
         onOpenChange={setShowProposalModal} 
+      />
+      <ViewFilmModal 
+        open={showViewFilmModal} 
+        onOpenChange={setShowViewFilmModal}
+        film={selectedFilm}
       />
     </div>
   );

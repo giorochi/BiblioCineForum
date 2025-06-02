@@ -52,6 +52,7 @@ export interface IStorage {
 
   // Attendance
   markAttendance(memberId: number, filmId: number): Promise<Attendance>;
+  checkExistingAttendance(memberId: number, filmId: number): Promise<Attendance | undefined>;
   getMemberAttendance(memberId: number): Promise<(Attendance & { filmTitle: string; filmDate: Date })[]>;
   getFilmAttendance(filmId: number): Promise<(Attendance & { memberName: string })[]>;
 
@@ -187,6 +188,14 @@ export class DatabaseStorage implements IStorage {
   async markAttendance(memberId: number, filmId: number): Promise<Attendance> {
     const [attendanceRecord] = await db.insert(attendance).values({ memberId, filmId }).returning();
     return attendanceRecord;
+  }
+
+  async checkExistingAttendance(memberId: number, filmId: number): Promise<Attendance | undefined> {
+    const [existingAttendance] = await db
+      .select()
+      .from(attendance)
+      .where(and(eq(attendance.memberId, memberId), eq(attendance.filmId, filmId)));
+    return existingAttendance;
   }
 
   async getMemberAttendance(memberId: number): Promise<(Attendance & { filmTitle: string; filmDate: Date })[]> {

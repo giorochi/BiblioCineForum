@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -33,20 +32,26 @@ export default function QRScannerModal({ open, onOpenChange }: QRScannerModalPro
     mutationFn: async ({ membershipCode, filmId }: { membershipCode: string; filmId: number }) => {
       return apiRequest("POST", "/api/attendance", { membershipCode, filmId });
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({
         title: "Successo",
-        description: "Presenza registrata con successo",
+        description: `Presenza registrata con successo per ${data.attendance?.memberName || 'il tesserato'}`,
       });
-      onOpenChange(false);
-      setManualCode("");
       setScannedCode("");
+      setManualCode("");
       setSelectedFilmId("");
+      onOpenChange(false);
     },
     onError: (error: any) => {
+      let errorMessage = "Errore nella registrazione della presenza";
+      if (error.message?.includes("Member not found")) {
+        errorMessage = "Codice tessera non trovato";
+      } else if (error.message?.includes("already marked")) {
+        errorMessage = "Presenza già registrata per questo film";
+      }
       toast({
         title: "Errore",
-        description: error.message || "Errore nella registrazione della presenza",
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -63,7 +68,7 @@ export default function QRScannerModal({ open, onOpenChange }: QRScannerModalPro
 
   const handleMarkAttendance = () => {
     const code = scannedCode || manualCode;
-    
+
     if (!code) {
       toast({
         title: "Errore",
@@ -105,7 +110,7 @@ export default function QRScannerModal({ open, onOpenChange }: QRScannerModalPro
             Scansiona il QR code del tesserato o inserisci manualmente il codice tessera
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-6">
           {/* Mode Selection */}
           <div className="flex space-x-2">

@@ -359,6 +359,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/films/:id", authenticateToken, async (req, res) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const filmId = parseInt(req.params.id);
+      const filmData = insertFilmSchema.partial().parse({
+        ...req.body,
+        scheduledDate: new Date(req.body.scheduledDate)
+      });
+
+      await storage.updateFilm(filmId, filmData);
+      res.json({ message: "Film updated successfully" });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to update film" });
+    }
+  });
+
   app.delete("/api/films/:id", authenticateToken, async (req, res) => {
     try {
       if (req.user.role !== 'admin') {
@@ -443,9 +465,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Member not found" });
       }
 
+      // Check if attendance already exists
+      const existingAttendance = await storage.checkExistingAttendance(member.id, filmId);
+      if (existingAttendance) {
+        return res.status(400).json({ message: "Attendance already marked for this film" });
+      }
+
       const attendance = await storage.markAttendance(member.id, filmId);
-      res.json({ message: "Attendance marked successfully", attendance });
+      res.json({ 
+        message: "Attendance marked successfully", 
+        attendance: {
+          ...attendance,
+          memberName: `${member.firstName} ${member.lastName}`
+        }
+      });
     } catch (error) {
+      console.error("Error marking attendance:", error);
       res.status(500).json({ message: "Failed to mark attendance" });
     }
   });

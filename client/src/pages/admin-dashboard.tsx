@@ -13,6 +13,8 @@ import AddFilmModal from "@/components/modals/add-film-modal";
 import QRScannerModal from "@/components/modals/qr-scanner-modal";
 import ViewMemberModal from "@/components/modals/view-member-modal";
 import EditMemberModal from "@/components/modals/edit-member-modal";
+import ViewFilmModal from "@/components/modals/view-film-modal";
+import EditFilmModal from "@/components/modals/edit-film-modal";
 
 export default function AdminDashboard() {
   const { logout } = useAuth();
@@ -24,7 +26,10 @@ export default function AdminDashboard() {
   const [showQRScannerModal, setShowQRScannerModal] = useState(false);
   const [showViewMemberModal, setShowViewMemberModal] = useState(false);
   const [showEditMemberModal, setShowEditMemberModal] = useState(false);
+  const [showViewFilmModal, setShowViewFilmModal] = useState(false);
+  const [showEditFilmModal, setShowEditFilmModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState<any>(null);
+  const [selectedFilm, setSelectedFilm] = useState<any>(null);
   const [selectedFilmId, setSelectedFilmId] = useState<number | null>(null);
 
   const { data: members } = useQuery({
@@ -165,6 +170,16 @@ export default function AdminDashboard() {
     if (confirm(`Sei sicuro di voler eliminare il tesserato ${member.firstName} ${member.lastName}?`)) {
       deleteMemberMutation.mutate(member.id);
     }
+  };
+
+  const handleViewFilm = (film: any) => {
+    setSelectedFilm(film);
+    setShowViewFilmModal(true);
+  };
+
+  const handleEditFilm = (film: any) => {
+    setSelectedFilm(film);
+    setShowEditFilmModal(true);
   };
 
   return (
@@ -393,15 +408,31 @@ export default function AdminDashboard() {
                         <Button
                           variant="ghost"
                           size="sm"
+                          onClick={() => handleViewFilm(film)}
+                          className="text-cinema-accent hover:text-yellow-400"
+                          title="Visualizza dettagli"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditFilm(film)}
                           className="text-blue-400 hover:text-blue-300"
+                          title="Modifica"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => deleteFilmMutation.mutate(film.id)}
+                          onClick={() => {
+                            if (confirm(`Sei sicuro di voler eliminare il film "${film.title}"?`)) {
+                              deleteFilmMutation.mutate(film.id);
+                            }
+                          }}
                           className="text-red-400 hover:text-red-300"
+                          title="Elimina"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -620,6 +651,16 @@ export default function AdminDashboard() {
         open={showEditMemberModal} 
         onOpenChange={setShowEditMemberModal}
         member={selectedMember}
+      />
+      <ViewFilmModal 
+        open={showViewFilmModal} 
+        onOpenChange={setShowViewFilmModal}
+        film={selectedFilm}
+      />
+      <EditFilmModal 
+        open={showEditFilmModal} 
+        onOpenChange={setShowEditFilmModal}
+        film={selectedFilm}
       />
     </div>
   );
