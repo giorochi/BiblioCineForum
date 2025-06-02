@@ -223,6 +223,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/members/:id", authenticateToken, async (req, res) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const memberId = parseInt(req.params.id);
+      const member = await storage.getMemberById(memberId);
+      
+      if (!member) {
+        return res.status(404).json({ message: "Member not found" });
+      }
+
+      res.json(member);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch member" });
+    }
+  });
+
+  app.put("/api/members/:id", authenticateToken, async (req, res) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const memberId = parseInt(req.params.id);
+      const updateData = insertMemberSchema.partial().parse(req.body);
+
+      await storage.updateMember(memberId, updateData);
+      res.json({ message: "Member updated successfully" });
+    } catch (error) {
+      console.error("Error updating member:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Dati non validi", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to update member" });
+    }
+  });
+
+  app.delete("/api/members/:id", authenticateToken, async (req, res) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const memberId = parseInt(req.params.id);
+      await storage.deleteMember(memberId);
+      res.json({ message: "Member deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete member" });
+    }
+  });
+
   // Film endpoints
   app.post("/api/films", upload.single('coverImage'), authenticateToken, async (req, res) => {
     try {

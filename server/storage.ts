@@ -30,6 +30,8 @@ export interface IStorage {
   getMemberByMembershipCode(code: string): Promise<Member | undefined>;
   getAllMembers(): Promise<Member[]>;
   updateMemberExpiry(id: number, expiryDate: string): Promise<void>;
+  updateMember(id: number, member: Partial<InsertMember>): Promise<void>;
+  deleteMember(id: number): Promise<void>;
   getMembersExpiringWithin(days: number): Promise<Member[]>;
 
   // Films
@@ -84,6 +86,17 @@ export class DatabaseStorage implements IStorage {
 
   async updateMemberExpiry(id: number, expiryDate: string): Promise<void> {
     await db.update(members).set({ expiryDate }).where(eq(members.id, id));
+  }
+
+  async updateMember(id: number, memberData: Partial<InsertMember>): Promise<void> {
+    await db.update(members).set(memberData).where(eq(members.id, id));
+  }
+
+  async deleteMember(id: number): Promise<void> {
+    // First delete related attendance records
+    await db.delete(attendance).where(eq(attendance.memberId, id));
+    // Then delete the member
+    await db.delete(members).where(eq(members.id, id));
   }
 
   async getMembersExpiringWithin(days: number): Promise<Member[]> {

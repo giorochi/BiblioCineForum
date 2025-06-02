@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -7,12 +8,13 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
-interface AddMemberModalProps {
+interface EditMemberModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  member: any;
 }
 
-export default function AddMemberModal({ open, onOpenChange }: AddMemberModalProps) {
+export default function EditMemberModal({ open, onOpenChange, member }: EditMemberModalProps) {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -24,42 +26,34 @@ export default function AddMemberModal({ open, onOpenChange }: AddMemberModalPro
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const createMemberMutation = useMutation({
-    mutationFn: async (data: typeof formData) => {
-      return apiRequest("POST", "/api/members", data);
-    },
-    onSuccess: async (response) => {
-      const data = await response.json();
-      queryClient.invalidateQueries({ queryKey: ["/api/members"] });
+  useEffect(() => {
+    if (member) {
       setFormData({
-        firstName: "",
-        lastName: "",
-        birthDate: "",
-        taxCode: "",
-        email: ""
+        firstName: member.firstName || "",
+        lastName: member.lastName || "",
+        birthDate: member.birthDate || "",
+        taxCode: member.taxCode || "",
+        email: member.email || ""
       });
+    }
+  }, [member]);
+
+  const updateMemberMutation = useMutation({
+    mutationFn: async (data: typeof formData) => {
+      return apiRequest("PUT", `/api/members/${member.id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/members"] });
       onOpenChange(false);
-      
-      // Show success message with credentials
       toast({
-        title: "Tesserato creato con successo!",
-        description: (
-          <div className="space-y-2">
-            <p><strong>Username:</strong> {data.username}</p>
-            <p><strong>Password:</strong> {data.plainPassword}</p>
-            <p><strong>Codice Tessera:</strong> {data.membershipCode}</p>
-            <p className="text-xs text-gray-400 mt-2">
-              Comunica queste credenziali al tesserato. La password non potrà essere recuperata successivamente.
-            </p>
-          </div>
-        ),
-        duration: 15000, // Show for 15 seconds
+        title: "Successo",
+        description: "Tesserato aggiornato con successo",
       });
     },
     onError: () => {
       toast({
         title: "Errore",
-        description: "Errore nella creazione del tesserato",
+        description: "Errore nell'aggiornamento del tesserato",
         variant: "destructive",
       });
     },
@@ -67,20 +61,22 @@ export default function AddMemberModal({ open, onOpenChange }: AddMemberModalPro
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createMemberMutation.mutate(formData);
+    updateMemberMutation.mutate(formData);
   };
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  if (!member) return null;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-cinema-surface border-gray-700 text-white max-w-lg max-h-screen overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">Nuovo Tesserato</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">Modifica Tesserato</DialogTitle>
           <DialogDescription className="text-gray-400">
-            Compila i campi per registrare un nuovo tesserato al circolo del cinema
+            Modifica le informazioni del tesserato {member.firstName} {member.lastName}
           </DialogDescription>
         </DialogHeader>
 
@@ -157,10 +153,10 @@ export default function AddMemberModal({ open, onOpenChange }: AddMemberModalPro
             </Button>
             <Button 
               type="submit" 
-              disabled={createMemberMutation.isPending}
+              disabled={updateMemberMutation.isPending}
               className="bg-cinema-red hover:bg-red-700 text-white"
             >
-              {createMemberMutation.isPending ? "Salvataggio..." : "Salva Tesserato"}
+              {updateMemberMutation.isPending ? "Aggiornamento..." : "Aggiorna"}
             </Button>
           </div>
         </form>

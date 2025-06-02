@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import AddMemberModal from "@/components/modals/add-member-modal";
 import AddFilmModal from "@/components/modals/add-film-modal";
 import QRScannerModal from "@/components/modals/qr-scanner-modal";
+import ViewMemberModal from "@/components/modals/view-member-modal";
+import EditMemberModal from "@/components/modals/edit-member-modal";
 
 export default function AdminDashboard() {
   const { logout } = useAuth();
@@ -20,6 +22,9 @@ export default function AdminDashboard() {
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
   const [showAddFilmModal, setShowAddFilmModal] = useState(false);
   const [showQRScannerModal, setShowQRScannerModal] = useState(false);
+  const [showViewMemberModal, setShowViewMemberModal] = useState(false);
+  const [showEditMemberModal, setShowEditMemberModal] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<any>(null);
   const [selectedFilmId, setSelectedFilmId] = useState<number | null>(null);
 
   const { data: members } = useQuery({
@@ -99,6 +104,26 @@ export default function AdminDashboard() {
     },
   });
 
+  const deleteMemberMutation = useMutation({
+    mutationFn: async (memberId: number) => {
+      return apiRequest("DELETE", `/api/members/${memberId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/members"] });
+      toast({
+        title: "Successo",
+        description: "Tesserato eliminato con successo",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Errore",
+        description: "Errore nell'eliminazione del tesserato",
+        variant: "destructive",
+      });
+    },
+  });
+
   const getMembershipStatus = (expiryDate: string) => {
     const today = new Date();
     const expiry = new Date(expiryDate);
@@ -123,6 +148,22 @@ export default function AdminDashboard() {
         return <Badge className="bg-red-600 text-white">Rifiutata</Badge>;
       default:
         return <Badge className="bg-gray-600 text-white">Sconosciuto</Badge>;
+    }
+  };
+
+  const handleViewMember = (member: any) => {
+    setSelectedMember(member);
+    setShowViewMemberModal(true);
+  };
+
+  const handleEditMember = (member: any) => {
+    setSelectedMember(member);
+    setShowEditMemberModal(true);
+  };
+
+  const handleDeleteMember = (member: any) => {
+    if (confirm(`Sei sicuro di voler eliminare il tesserato ${member.firstName} ${member.lastName}?`)) {
+      deleteMemberMutation.mutate(member.id);
     }
   };
 
@@ -271,24 +312,38 @@ export default function AdminDashboard() {
                               <Button
                                 variant="ghost"
                                 size="sm"
+                                onClick={() => handleViewMember(member)}
                                 className="text-cinema-accent hover:text-yellow-400"
+                                title="Visualizza dettagli"
                               >
                                 <Eye className="w-4 h-4" />
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
+                                onClick={() => handleEditMember(member)}
+                                className="text-blue-400 hover:text-blue-300"
+                                title="Modifica"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => renewMembershipMutation.mutate(member.id)}
                                 className="text-green-400 hover:text-green-300"
+                                title="Rinnova tessera"
                               >
                                 <RefreshCw className="w-4 h-4" />
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-blue-400 hover:text-blue-300"
+                                onClick={() => handleDeleteMember(member)}
+                                className="text-red-400 hover:text-red-300"
+                                title="Elimina"
                               >
-                                <Edit className="w-4 h-4" />
+                                <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
                           </td>
@@ -555,6 +610,16 @@ export default function AdminDashboard() {
       <QRScannerModal 
         open={showQRScannerModal} 
         onOpenChange={setShowQRScannerModal} 
+      />
+      <ViewMemberModal 
+        open={showViewMemberModal} 
+        onOpenChange={setShowViewMemberModal}
+        member={selectedMember}
+      />
+      <EditMemberModal 
+        open={showEditMemberModal} 
+        onOpenChange={setShowEditMemberModal}
+        member={selectedMember}
       />
     </div>
   );
