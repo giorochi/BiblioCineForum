@@ -165,7 +165,7 @@ export class DatabaseStorage implements IStorage {
         memberLastName: members.lastName
       })
       .from(filmProposals)
-      .leftJoin(members, eq(filmProposals.memberId, members.id))
+      .innerJoin(members, eq(filmProposals.memberId, members.id))
       .orderBy(desc(filmProposals.createdAt));
 
     return proposals.map(p => ({
@@ -176,7 +176,7 @@ export class DatabaseStorage implements IStorage {
       reason: p.reason,
       status: p.status,
       createdAt: p.createdAt,
-      memberName: `${p.memberFirstName || ''} ${p.memberLastName || ''}`.trim()
+      memberName: `${p.memberFirstName || 'Sconosciuto'} ${p.memberLastName || ''}`.trim() || 'Membro Sconosciuto'
     }));
   }
 

@@ -426,7 +426,7 @@ export default function AdminDashboard() {
                     <div>
                       <h4 className="text-lg font-semibold text-white mb-2">{proposal.title}</h4>
                       <p className="text-gray-300 mb-1">Regia: {proposal.director}</p>
-                      <p className="text-gray-400 text-sm">Proposto da: {proposal.memberName}</p>
+                      <p className="text-gray-400 text-sm">Proposto da: {proposal.memberName || 'Membro Sconosciuto'}</p>
                       <p className="text-gray-400 text-sm">
                         Data proposta: {format(new Date(proposal.createdAt), "dd MMMM yyyy", { locale: it })}
                       </p>
