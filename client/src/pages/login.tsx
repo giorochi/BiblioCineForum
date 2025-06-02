@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function Login() {
   const { login } = useAuth();
+  const { toast } = useToast();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -42,11 +43,15 @@ export default function Login() {
       <div className="max-w-md w-full">
         {/* Logo Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-cinema-red rounded-full mb-4">
-            <Film className="w-8 h-8 text-white" />
+          <div className="flex justify-center mb-4">
+            <img 
+              src="@assets/logo_biblio (1).png" 
+              alt="Logo Biblioteca" 
+              className="h-20 w-auto"
+            />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">CineForum</h1>
-          <p className="text-gray-400">Gestione Tesserati</p>
+          <h1 className="text-3xl font-bold text-amber-600 mb-2">CineForum Biblioteca</h1>
+          <p className="text-gray-400">Sistema di gestione eventi</p>
         </div>
 
         {/* Login Form */}

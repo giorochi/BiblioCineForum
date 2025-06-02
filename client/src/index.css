@@ -24,11 +24,11 @@
   --ring: 0 84% 60%; /* #DC2626 */
   --radius: 0.5rem;
   
-  /* Custom cinema colors */
-  --cinema-red: 0 84% 60%; /* #DC2626 */
+  /* Custom biblioteca colors */
+  --cinema-red: 30 70% 40%; /* #B8860B - bronzo biblioteca */
   --cinema-dark: 217 33% 17%; /* #111827 */
-  --cinema-surface: 217 33% 17%; /* #1F2937 */
-  --cinema-accent: 43 96% 56%; /* #F59E0B */
+  --cinema-surface: 30 20% 15%; /* #2D251A - marrone scuro */
+  --cinema-accent: 35 85% 50%; /* #DAA520 - oro antico */
 }
 
 .dark {
