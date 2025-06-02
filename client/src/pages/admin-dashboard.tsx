@@ -46,6 +46,7 @@ export default function AdminDashboard() {
 
   const { data: filmAttendance, isLoading: isLoadingAttendance, refetch: refetchAttendance } = useQuery({
     queryKey: ["/api/attendance/film", selectedFilmId],
+    queryFn: () => apiRequest("GET", `/api/attendance/film/${selectedFilmId}`),
     enabled: !!selectedFilmId,
   });
 
@@ -525,10 +526,6 @@ export default function AdminDashboard() {
                   <Button
                     onClick={() => {
                       setSelectedFilmId(film.id);
-                      // Force refetch attendance data
-                      setTimeout(() => {
-                        refetchAttendance();
-                      }, 100);
                     }}
                     className="w-full bg-cinema-red hover:bg-red-700 text-white"
                   >
