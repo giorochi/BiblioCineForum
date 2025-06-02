@@ -47,7 +47,10 @@ export default function AdminDashboard() {
 
   const { data: filmAttendance, isLoading: isLoadingAttendance, refetch: refetchAttendance } = useQuery({
     queryKey: ["/api/attendance/film", selectedFilmId],
-    queryFn: () => apiRequest("GET", `/api/attendance/film/${selectedFilmId}`),
+    queryFn: async () => {
+      const response = await apiRequest("GET", `/api/attendance/film/${selectedFilmId}`);
+      return await response.json();
+    },
     enabled: !!selectedFilmId,
   });
 
@@ -572,15 +575,15 @@ export default function AdminDashboard() {
                   <>
                     <div className="mb-4 flex justify-between items-center">
                       <Badge className="bg-blue-600 text-white px-4 py-2">
-                        Totale presenti: {filmAttendance.length}
+                        Totale presenti: {Array.isArray(filmAttendance) ? filmAttendance.length : 0}
                       </Badge>
                       <Badge className="bg-gray-600 text-white px-4 py-2">
-                        Tasso partecipazione: {Math.round((filmAttendance.length / (members?.length || 1)) * 100)}%
+                        Tasso partecipazione: {Math.round(((Array.isArray(filmAttendance) ? filmAttendance.length : 0) / (Array.isArray(members) ? members.length : 1)) * 100)}%
                       </Badge>
                     </div>
 
                     <div className="space-y-2 max-h-96 overflow-y-auto">
-                      {filmAttendance.length > 0 ? (
+                      {Array.isArray(filmAttendance) && filmAttendance.length > 0 ? (
                         filmAttendance.map((attendance: any, index: number) => (
                           <div key={attendance.id} className="flex justify-between items-center py-3 px-4 bg-gray-800 rounded hover:bg-gray-750 transition-colors">
                             <div className="flex items-center space-x-3">

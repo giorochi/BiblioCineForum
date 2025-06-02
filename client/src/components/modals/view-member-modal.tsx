@@ -24,7 +24,10 @@ export default function ViewMemberModal({ open, onOpenChange, member }: ViewMemb
 
   const { data: memberAttendance } = useQuery({
     queryKey: ["/api/attendance/member", member?.id],
-    queryFn: () => apiRequest("GET", `/api/attendance/member/${member.id}`),
+    queryFn: async () => {
+      const response = await apiRequest("GET", `/api/attendance/member/${member.id}`);
+      return await response.json();
+    },
     enabled: !!member?.id,
   });
 
@@ -254,11 +257,11 @@ export default function ViewMemberModal({ open, onOpenChange, member }: ViewMemb
                 Film Visti
               </h3>
               <Badge className="bg-cinema-accent text-black">
-                Totale: {memberAttendance?.length || 0}
+                Totale: {Array.isArray(memberAttendance) ? memberAttendance.length : 0}
               </Badge>
             </div>
             
-            {memberAttendance && memberAttendance.length > 0 ? (
+            {Array.isArray(memberAttendance) && memberAttendance.length > 0 ? (
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {memberAttendance.map((attendance: any) => (
                   <div key={attendance.id} className="flex justify-between items-center py-3 px-4 bg-gray-700 rounded hover:bg-gray-600 transition-colors">
