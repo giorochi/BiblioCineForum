@@ -44,7 +44,7 @@ export default function AdminDashboard() {
     queryKey: ["/api/proposals"],
   });
 
-  const { data: filmAttendance } = useQuery({
+  const { data: filmAttendance, isLoading: isLoadingAttendance, refetch: refetchAttendance } = useQuery({
     queryKey: ["/api/attendance/film", selectedFilmId],
     enabled: !!selectedFilmId,
   });
@@ -523,7 +523,13 @@ export default function AdminDashboard() {
                   </div>
 
                   <Button
-                    onClick={() => setSelectedFilmId(film.id)}
+                    onClick={() => {
+                      setSelectedFilmId(film.id);
+                      // Force refetch attendance data
+                      setTimeout(() => {
+                        refetchAttendance();
+                      }, 100);
+                    }}
                     className="w-full bg-cinema-red hover:bg-red-700 text-white"
                   >
                     <Eye className="w-4 h-4 mr-2" />
@@ -533,7 +539,7 @@ export default function AdminDashboard() {
               ))}
             </div>
 
-            {selectedFilmId && filmAttendance && (
+            {selectedFilmId && (
               <div className="bg-cinema-surface rounded-xl p-6 border border-gray-700 mt-6">
                 <div className="flex justify-between items-center mb-6">
                   <div>
@@ -555,37 +561,56 @@ export default function AdminDashboard() {
                   </Button>
                 </div>
 
-                <div className="mb-4 flex justify-between items-center">
-                  <Badge className="bg-blue-600 text-white px-4 py-2">
-                    Totale presenti: {filmAttendance.length}
-                  </Badge>
-                  <Badge className="bg-gray-600 text-white px-4 py-2">
-                    Tasso partecipazione: {Math.round((filmAttendance.length / (members?.length || 1)) * 100)}%
-                  </Badge>
-                </div>
-
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {filmAttendance.length > 0 ? (
-                    filmAttendance.map((attendance: any, index: number) => (
-                      <div key={attendance.id} className="flex justify-between items-center py-3 px-4 bg-gray-800 rounded hover:bg-gray-750 transition-colors">
-                        <div className="flex items-center space-x-3">
-                          <span className="text-xs text-gray-500 w-6">#{index + 1}</span>
-                          <span className="text-white font-medium">
-                            {attendance.memberFirstName} {attendance.memberLastName}
-                          </span>
-                        </div>
-                        <span className="text-gray-400 text-sm">
-                          {format(new Date(attendance.attendedAt), "dd/MM/yyyy HH:mm")}
-                        </span>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-8">
-                      <p className="text-gray-400 mb-2">Nessuna presenza registrata per questo film</p>
-                      <p className="text-gray-500 text-sm">Usa lo scanner QR per registrare le presenze</p>
+                {isLoadingAttendance ? (
+                  <div className="text-center py-8">
+                    <p className="text-gray-400">Caricamento presenze...</p>
+                  </div>
+                ) : filmAttendance ? (
+                  <>
+                    <div className="mb-4 flex justify-between items-center">
+                      <Badge className="bg-blue-600 text-white px-4 py-2">
+                        Totale presenti: {filmAttendance.length}
+                      </Badge>
+                      <Badge className="bg-gray-600 text-white px-4 py-2">
+                        Tasso partecipazione: {Math.round((filmAttendance.length / (members?.length || 1)) * 100)}%
+                      </Badge>
                     </div>
-                  )}
-                </div>
+
+                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                      {filmAttendance.length > 0 ? (
+                        filmAttendance.map((attendance: any, index: number) => (
+                          <div key={attendance.id} className="flex justify-between items-center py-3 px-4 bg-gray-800 rounded hover:bg-gray-750 transition-colors">
+                            <div className="flex items-center space-x-3">
+                              <span className="text-xs text-gray-500 w-6">#{index + 1}</span>
+                              <span className="text-white font-medium">
+                                {attendance.memberFirstName} {attendance.memberLastName}
+                              </span>
+                            </div>
+                            <span className="text-gray-400 text-sm">
+                              {format(new Date(attendance.attendedAt), "dd/MM/yyyy HH:mm")}
+                            </span>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-8">
+                          <p className="text-gray-400 mb-2">Nessuna presenza registrata per questo film</p>
+                          <p className="text-gray-500 text-sm">Usa lo scanner QR per registrare le presenze</p>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-400 mb-2">Errore nel caricamento delle presenze</p>
+                    <Button
+                      onClick={() => refetchAttendance()}
+                      variant="ghost"
+                      className="text-cinema-accent hover:text-yellow-400"
+                    >
+                      Riprova
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </div>
