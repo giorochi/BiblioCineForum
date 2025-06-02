@@ -24,6 +24,7 @@ export default function ViewMemberModal({ open, onOpenChange, member }: ViewMemb
 
   const { data: memberAttendance } = useQuery({
     queryKey: ["/api/attendance/member", member?.id],
+    queryFn: () => apiRequest("GET", `/api/attendance/member/${member.id}`),
     enabled: !!member?.id,
   });
 

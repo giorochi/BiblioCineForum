@@ -40,11 +40,9 @@ export default function Login() {
         {/* Logo Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <img 
-              src="@assets/logo_biblio (1).png" 
-              alt="Logo Biblioteca" 
-              className="h-20 w-auto"
-            />
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-amber-600 rounded-full mb-4">
+              <span className="text-2xl font-bold text-white">SCB</span>
+            </div>
           </div>
           <h1 className="text-3xl font-bold text-amber-600 mb-1">Biblioteca San Carlo Borromeo</h1>
           <h2 className="text-xl font-semibold text-amber-500 mb-2">CineForum</h2>
