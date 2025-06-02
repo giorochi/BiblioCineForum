@@ -31,6 +31,7 @@ export interface IStorage {
   getAllMembers(): Promise<Member[]>;
   updateMemberExpiry(id: number, expiryDate: string): Promise<void>;
   updateMember(id: number, member: Partial<InsertMember>): Promise<void>;
+  updateMemberPassword(id: number, hashedPassword: string): Promise<void>;
   deleteMember(id: number): Promise<void>;
   getMembersExpiringWithin(days: number): Promise<Member[]>;
 
@@ -90,6 +91,10 @@ export class DatabaseStorage implements IStorage {
 
   async updateMember(id: number, memberData: Partial<InsertMember>): Promise<void> {
     await db.update(members).set(memberData).where(eq(members.id, id));
+  }
+
+  async updateMemberPassword(id: number, hashedPassword: string): Promise<void> {
+    await db.update(members).set({ password: hashedPassword }).where(eq(members.id, id));
   }
 
   async deleteMember(id: number): Promise<void> {

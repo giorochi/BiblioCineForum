@@ -276,6 +276,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/members/:id/reset-password", authenticateToken, async (req, res) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const memberId = parseInt(req.params.id);
+      const newPassword = generatePassword();
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      await storage.updateMemberPassword(memberId, hashedPassword);
+      
+      res.json({ 
+        message: "Password reset successfully",
+        newPassword: newPassword // Return plain password for admin to see
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to reset password" });
+    }
+  });
+
   // Film endpoints
   app.post("/api/films", upload.single('coverImage'), authenticateToken, async (req, res) => {
     try {

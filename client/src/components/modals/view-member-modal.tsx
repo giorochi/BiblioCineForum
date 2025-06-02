@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
-import { Download, Copy, Check } from "lucide-react";
+import { Download, Copy, Check, RotateCcw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 interface ViewMemberModalProps {
   open: boolean;
@@ -16,7 +18,31 @@ interface ViewMemberModalProps {
 
 export default function ViewMemberModal({ open, onOpenChange, member }: ViewMemberModalProps) {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState<string | null>(null);
+
+  const resetPasswordMutation = useMutation({
+    mutationFn: async (memberId: number) => {
+      const response = await apiRequest("POST", `/api/members/${memberId}/reset-password`);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setNewPassword(data.newPassword);
+      queryClient.invalidateQueries({ queryKey: ["/api/members"] });
+      toast({
+        title: "Successo",
+        description: "Nuova password generata con successo",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Errore",
+        description: "Errore nella generazione della nuova password",
+        variant: "destructive",
+      });
+    },
+  });
 
   if (!member) return null;
 
@@ -153,11 +179,41 @@ export default function ViewMemberModal({ open, onOpenChange, member }: ViewMemb
               <div>
                 <label className="text-sm text-gray-400">Password</label>
                 <div className="flex items-center space-x-2">
-                  <p className="text-white font-mono">••••••••</p>
-                  <span className="text-xs text-gray-500">
-                    (generata automaticamente al momento della creazione)
-                  </span>
+                  {(member.plainPassword || newPassword) ? (
+                    <>
+                      <p className="text-white font-mono bg-gray-700 px-2 py-1 rounded">
+                        {member.plainPassword || newPassword}
+                      </p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => copyToClipboard(member.plainPassword || newPassword, "Password")}
+                        className="text-gray-400 hover:text-white"
+                      >
+                        {copiedField === "Password" ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-white font-mono">••••••••</p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => resetPasswordMutation.mutate(member.id)}
+                        className="text-yellow-400 hover:text-yellow-300"
+                        disabled={resetPasswordMutation.isPending}
+                      >
+                        <RotateCcw className="w-4 h-4 mr-1" />
+                        {resetPasswordMutation.isPending ? "Generando..." : "Nuova Password"}
+                      </Button>
+                    </>
+                  )}
                 </div>
+                {(member.plainPassword || newPassword) && (
+                  <p className="text-xs text-green-400 mt-1">
+                    Password visibile - comunicala al tesserato
+                  </p>
+                )}
               </div>
             </div>
           </div>

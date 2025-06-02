@@ -39,7 +39,7 @@ export default function AddMemberModal({ open, onOpenChange }: AddMemberModalPro
         email: ""
       });
       onOpenChange(false);
-      
+
       // Show success message with credentials
       toast({
         title: "Tesserato creato con successo!",
