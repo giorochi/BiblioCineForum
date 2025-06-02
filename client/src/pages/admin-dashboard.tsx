@@ -8,6 +8,7 @@ import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import logoPath from "@assets/logo_biblio (1).png";
 import AddMemberModal from "@/components/modals/add-member-modal";
 import AddFilmModal from "@/components/modals/add-film-modal";
 import QRScannerModal from "@/components/modals/qr-scanner-modal";
@@ -190,9 +191,11 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <div className="inline-flex items-center justify-center w-10 h-10 bg-amber-600 rounded-full">
-                <span className="text-sm font-bold text-white">SCB</span>
-              </div>
+              <img 
+                src={logoPath} 
+                alt="Logo Biblioteca San Carlo Borromeo" 
+                className="h-10 w-auto"
+              />
               <div className="flex flex-col">
                 <span className="text-lg font-bold text-amber-600">Biblioteca San Carlo Borromeo</span>
                 <span className="text-sm text-cinema-accent">Admin Panel</span>

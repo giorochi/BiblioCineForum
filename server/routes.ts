@@ -468,7 +468,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if attendance already exists
       const existingAttendance = await storage.checkExistingAttendance(member.id, filmId);
       if (existingAttendance) {
-        return res.status(400).json({ message: "Attendance already marked for this member and film" });
+        return res.status(400).json({ 
+          message: `Presenza già registrata per ${member.firstName} ${member.lastName}`,
+          memberName: `${member.firstName} ${member.lastName}`,
+          alreadyMarked: true
+        });
       }
 
       const attendance = await storage.markAttendance(member.id, filmId);
