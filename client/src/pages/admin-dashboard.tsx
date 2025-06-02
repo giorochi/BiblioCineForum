@@ -493,22 +493,41 @@ export default function AdminDashboard() {
         {/* Attendance Management Tab */}
         {activeTab === "attendance" && (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-white mb-6">Presenze per Film</h3>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold text-white">Presenze per Film</h3>
+              <Badge className="bg-cinema-accent text-black px-3 py-1">
+                Totale Film: {films?.length || 0}
+              </Badge>
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {films?.map((film: any) => (
-                <div key={film.id} className="bg-cinema-surface rounded-xl p-6 border border-gray-700">
+                <div key={film.id} className="bg-cinema-surface rounded-xl p-6 border border-gray-700 hover:border-cinema-accent transition-colors">
+                  {film.coverImage && (
+                    <img
+                      src={film.coverImage}
+                      alt={`Poster ${film.title}`}
+                      className="w-full h-32 object-cover rounded-lg mb-4"
+                    />
+                  )}
                   <h4 className="text-lg font-semibold text-white mb-2">{film.title}</h4>
                   <p className="text-gray-300 text-sm mb-2">{film.director}</p>
-                  <p className="text-gray-400 text-sm mb-4">
+                  <p className="text-gray-400 text-sm mb-3">
                     {format(new Date(film.scheduledDate), "dd MMMM yyyy, HH:mm", { locale: it })}
                   </p>
+                  
+                  <div className="mb-4">
+                    <Badge className="bg-blue-600 text-white mb-2">
+                      Presenti: {film.attendanceCount || 0}
+                    </Badge>
+                  </div>
+
                   <Button
                     onClick={() => setSelectedFilmId(film.id)}
                     className="w-full bg-cinema-red hover:bg-red-700 text-white"
                   >
                     <Eye className="w-4 h-4 mr-2" />
-                    Visualizza Presenze
+                    Dettagli Presenze
                   </Button>
                 </div>
               ))}
@@ -516,10 +535,17 @@ export default function AdminDashboard() {
 
             {selectedFilmId && filmAttendance && (
               <div className="bg-cinema-surface rounded-xl p-6 border border-gray-700 mt-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h4 className="text-lg font-semibold text-white">
-                    Presenze per: {films?.find((f: any) => f.id === selectedFilmId)?.title}
-                  </h4>
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h4 className="text-lg font-semibold text-white">
+                      Presenze per: {films?.find((f: any) => f.id === selectedFilmId)?.title}
+                    </h4>
+                    <p className="text-gray-400 text-sm">
+                      {films?.find((f: any) => f.id === selectedFilmId) && 
+                        format(new Date(films.find((f: any) => f.id === selectedFilmId).scheduledDate), 
+                               "dd MMMM yyyy, HH:mm", { locale: it })}
+                    </p>
+                  </div>
                   <Button
                     variant="ghost"
                     onClick={() => setSelectedFilmId(null)}
@@ -528,26 +554,37 @@ export default function AdminDashboard() {
                     <X className="w-4 h-4" />
                   </Button>
                 </div>
-                <div className="space-y-2">
+
+                <div className="mb-4 flex justify-between items-center">
+                  <Badge className="bg-blue-600 text-white px-4 py-2">
+                    Totale presenti: {filmAttendance.length}
+                  </Badge>
+                  <Badge className="bg-gray-600 text-white px-4 py-2">
+                    Tasso partecipazione: {Math.round((filmAttendance.length / (members?.length || 1)) * 100)}%
+                  </Badge>
+                </div>
+
+                <div className="space-y-2 max-h-96 overflow-y-auto">
                   {filmAttendance.length > 0 ? (
-                    filmAttendance.map((attendance: any) => (
-                      <div key={attendance.id} className="flex justify-between items-center py-2 px-4 bg-gray-800 rounded">
-                        <span className="text-white">
-                          {attendance.memberFirstName} {attendance.memberLastName}
-                        </span>
+                    filmAttendance.map((attendance: any, index: number) => (
+                      <div key={attendance.id} className="flex justify-between items-center py-3 px-4 bg-gray-800 rounded hover:bg-gray-750 transition-colors">
+                        <div className="flex items-center space-x-3">
+                          <span className="text-xs text-gray-500 w-6">#{index + 1}</span>
+                          <span className="text-white font-medium">
+                            {attendance.memberFirstName} {attendance.memberLastName}
+                          </span>
+                        </div>
                         <span className="text-gray-400 text-sm">
                           {format(new Date(attendance.attendedAt), "dd/MM/yyyy HH:mm")}
                         </span>
                       </div>
                     ))
                   ) : (
-                    <p className="text-gray-400 text-center py-4">Nessuna presenza registrata</p>
+                    <div className="text-center py-8">
+                      <p className="text-gray-400 mb-2">Nessuna presenza registrata per questo film</p>
+                      <p className="text-gray-500 text-sm">Usa lo scanner QR per registrare le presenze</p>
+                    </div>
                   )}
-                </div>
-                <div className="mt-4 text-center">
-                  <Badge className="bg-blue-600 text-white">
-                    Totale presenti: {filmAttendance.length}
-                  </Badge>
                 </div>
               </div>
             )}

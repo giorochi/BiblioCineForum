@@ -180,6 +180,16 @@ export default function MemberDashboard() {
             >
               Proponi Film
             </button>
+            <button
+              onClick={() => setActiveTab("attendance")}
+              className={`py-4 px-1 text-sm font-medium border-b-2 ${
+                activeTab === "attendance"
+                  ? "border-cinema-red text-cinema-red"
+                  : "border-transparent text-gray-400 hover:text-gray-300"
+              }`}
+            >
+              Le Mie Presenze
+            </button>
           </nav>
         </div>
 
@@ -187,7 +197,7 @@ export default function MemberDashboard() {
         {activeTab === "films" && (
           <div className="space-y-6">
             <h3 className="text-xl font-semibold text-white mb-6">Prossimi Film in Programma</h3>
-            
+
             {upcomingFilms?.map((film: any) => (
               <div key={film.id} className="bg-cinema-surface rounded-xl p-6 border border-gray-700 film-card-hover">
                 <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6">
@@ -198,7 +208,7 @@ export default function MemberDashboard() {
                       className="w-full md:w-32 h-48 object-cover rounded-lg"
                     />
                   )}
-                  
+
                   <div className="flex-1">
                     <h4 className="text-lg font-semibold text-white mb-2">{film.title}</h4>
                     <p className="text-gray-300 mb-2">
@@ -238,7 +248,7 @@ export default function MemberDashboard() {
         {activeTab === "history" && (
           <div className="space-y-6">
             <h3 className="text-xl font-semibold text-white mb-6">Film Già Visti</h3>
-            
+
             {pastFilms?.filter((film: any) => hasAttended(film.id)).map((film: any) => (
               <div key={film.id} className="bg-cinema-surface rounded-xl p-6 border border-gray-700">
                 <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6">
@@ -249,7 +259,7 @@ export default function MemberDashboard() {
                       className="w-full md:w-32 h-48 object-cover rounded-lg"
                     />
                   )}
-                  
+
                   <div className="flex-1">
                     <h4 className="text-lg font-semibold text-white mb-2">{film.title}</h4>
                     <p className="text-gray-300 mb-2">
@@ -302,19 +312,99 @@ export default function MemberDashboard() {
             <div className="space-y-4">
               {myProposals?.map((proposal: any) => (
                 <div key={proposal.id} className="bg-cinema-surface rounded-xl p-6 border border-gray-700">
-                  <div className="flex justify-between items-start">
+                  <div className="flex justify-between items-start mb-4">
                     <div>
                       <h4 className="text-lg font-semibold text-white mb-2">{proposal.title}</h4>
-                      <p className="text-gray-300 mb-2">Regia: {proposal.director}</p>
+                      <p className="text-gray-300 mb-1">
+                        <span className="font-medium">Regia:</span> {proposal.director}
+                      </p>
                       <p className="text-gray-400 text-sm">
-                        Proposto il {format(new Date(proposal.createdAt), "dd MMMM yyyy", { locale: it })}
+                        Data proposta: {format(new Date(proposal.createdAt), "dd MMMM yyyy", { locale: it })}
                       </p>
                     </div>
                     {getStatusBadge(proposal.status)}
                   </div>
+                  <p className="text-gray-400 text-sm">
+                    <span className="font-medium">Motivazione:</span> {proposal.reason}
+                  </p>
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Attendance Tab Content */}
+        {activeTab === "attendance" && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold text-white">Le Mie Presenze</h3>
+              <Badge className="bg-cinema-accent text-black px-3 py-1">
+                Presenze totali: {myAttendance?.length || 0}
+              </Badge>
+            </div>
+
+            <div className="space-y-4">
+              {myAttendance && myAttendance.length > 0 ? (
+                myAttendance.map((attendance: any) => (
+                  <div key={attendance.id} className="bg-cinema-surface rounded-xl p-6 border border-gray-700">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h4 className="text-lg font-semibold text-white mb-2">{attendance.filmTitle}</h4>
+                        <p className="text-gray-300 mb-2">
+                          <span className="font-medium">Data film:</span>{" "}
+                          {format(new Date(attendance.filmDate), "EEEE dd MMMM yyyy, 'ore' HH:mm", { locale: it })}
+                        </p>
+                        <p className="text-gray-400 text-sm">
+                          <span className="font-medium">Presenza registrata:</span>{" "}
+                          {format(new Date(attendance.attendedAt), "dd MMMM yyyy, 'ore' HH:mm", { locale: it })}
+                        </p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <CheckCircle className="w-5 h-5 text-green-400" />
+                        <Badge className="bg-green-600 text-white">
+                          Partecipato
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-12">
+                  <Film className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+                  <p className="text-gray-400 text-lg mb-2">Nessuna presenza registrata</p>
+                  <p className="text-gray-500 text-sm">
+                    Le tue presenze ai film verranno mostrate qui dopo che l'admin le avrà registrate
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Statistics */}
+            {myAttendance && myAttendance.length > 0 && (
+              <div className="bg-cinema-surface rounded-xl p-6 border border-gray-700">
+                <h4 className="text-lg font-semibold text-white mb-4">Statistiche Presenze</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-cinema-accent mb-1">
+                      {myAttendance.length}
+                    </div>
+                    <div className="text-gray-400 text-sm">Film visti</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-400 mb-1">
+                      {myAttendance.filter((a: any) => new Date(a.filmDate) <= new Date()).length}
+                    </div>
+                    <div className="text-gray-400 text-sm">Film passati</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-400 mb-1">
+                      {myAttendance.filter((a: any) => new Date(a.filmDate) > new Date()).length}
+                    </div>
+                    <div className="text-gray-400 text-sm">Film futuri</div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
