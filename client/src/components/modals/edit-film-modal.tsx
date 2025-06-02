@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,7 +17,7 @@ interface EditFilmModalProps {
 export default function EditFilmModal({ open, onOpenChange, film }: EditFilmModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   const [formData, setFormData] = useState({
     title: film?.title || "",
     director: film?.director || "",
@@ -71,6 +71,9 @@ export default function EditFilmModal({ open, onOpenChange, film }: EditFilmModa
           <DialogTitle className="text-xl font-bold text-cinema-accent">
             Modifica Film
           </DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Aggiorna le informazioni del film selezionato
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">

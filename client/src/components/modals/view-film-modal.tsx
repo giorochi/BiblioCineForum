@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
@@ -30,6 +30,9 @@ export default function ViewFilmModal({ open, onOpenChange, film }: ViewFilmModa
       <DialogContent className="max-w-2xl bg-cinema-surface border-gray-700 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-white">Dettagli Film</DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Dettagli completi del film con informazioni su presenze e statistiche
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -76,7 +75,7 @@ export default function EditMemberModal({ open, onOpenChange, member }: EditMemb
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Modifica Tesserato</DialogTitle>
           <DialogDescription className="text-gray-400">
-            Modifica le informazioni del tesserato {member.firstName} {member.lastName}
+            Aggiorna le informazioni del tesserato selezionato
           </DialogDescription>
         </DialogHeader>
 

@@ -63,6 +63,9 @@ export default function ProposalModal({ open, onOpenChange }: ProposalModalProps
       <DialogContent className="bg-cinema-surface border-gray-700 text-white max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Proponi un Film</DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Suggerisci un film da includere nella programmazione del cineforum
+          </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">

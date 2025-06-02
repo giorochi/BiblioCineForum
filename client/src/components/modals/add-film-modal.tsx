@@ -104,9 +104,9 @@ export default function AddFilmModal({ open, onOpenChange }: AddFilmModalProps) 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-cinema-surface border-gray-700 text-white max-w-lg max-h-screen overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">Aggiungi Film</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">Aggiungi Nuovo Film</DialogTitle>
           <DialogDescription className="text-gray-400">
-            Inserisci i dettagli del film da aggiungere alla programmazione
+            Inserisci i dettagli per programmare un nuovo film nel cineforum
           </DialogDescription>
         </DialogHeader>
 

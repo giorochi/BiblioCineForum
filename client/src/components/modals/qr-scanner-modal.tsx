@@ -107,7 +107,7 @@ export default function QRScannerModal({ open, onOpenChange }: QRScannerModalPro
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Registra Presenza</DialogTitle>
           <DialogDescription className="text-gray-400">
-            Scansiona il QR code del tesserato o inserisci manualmente il codice tessera
+            Scansiona il QR code del tesserato o inserisci manualmente il codice tessera per registrare la presenza al film selezionato
           </DialogDescription>
         </DialogHeader>
 

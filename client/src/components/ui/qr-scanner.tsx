@@ -29,13 +29,8 @@ export function QRScanner({ onScan, onError }: QRScannerProps) {
         videoRef.current.play();
       }
 
-      // Simulate QR code detection for now
-      // In a real implementation, you would use libraries like @zxing/library
-      setTimeout(() => {
-        const mockQRCode = "CF" + Math.floor(Math.random() * 999999).toString().padStart(6, '0');
-        onScan(mockQRCode);
-        stopScanning();
-      }, 3000);
+      // For now, we'll wait for manual scanning
+      // The user needs to manually enter the code or we need a QR scanning library
       
     } catch (err) {
       const errorMessage = "Errore nell'accesso alla fotocamera";

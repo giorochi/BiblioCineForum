@@ -100,6 +100,9 @@ export default function ViewMemberModal({ open, onOpenChange, member }: ViewMemb
       <DialogContent className="bg-cinema-surface border-gray-700 text-white max-w-2xl max-h-screen overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Dettagli Tesserato</DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Visualizza informazioni complete del tesserato, QR code e storico presenze
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
