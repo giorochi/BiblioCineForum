@@ -15,11 +15,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Clear any existing invalid tokens on component mount
-  useEffect(() => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-  }, []);
+  // Don't clear tokens automatically - let auth handle it
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +46,8 @@ export default function Login() {
               className="h-20 w-auto"
             />
           </div>
-          <h1 className="text-3xl font-bold text-amber-600 mb-2">CineForum Biblioteca</h1>
+          <h1 className="text-3xl font-bold text-amber-600 mb-1">Biblioteca San Carlo Borromeo</h1>
+          <h2 className="text-xl font-semibold text-amber-500 mb-2">CineForum</h2>
           <p className="text-gray-400">Sistema di gestione eventi</p>
         </div>
 

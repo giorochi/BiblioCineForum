@@ -46,7 +46,6 @@ export default function AdminDashboard() {
 
   const { data: filmAttendance, isLoading: isLoadingAttendance, refetch: refetchAttendance } = useQuery({
     queryKey: ["/api/attendance/film", selectedFilmId],
-    queryFn: () => apiRequest("GET", `/api/attendance/film/${selectedFilmId}`),
     enabled: !!selectedFilmId,
   });
 
@@ -190,9 +189,14 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Shield className="w-6 h-6 text-cinema-accent" />
-                <span className="text-xl font-bold text-white">Admin Panel</span>
+              <img 
+                src="@assets/logo_biblio (1).png" 
+                alt="Logo Biblioteca" 
+                className="h-10 w-auto"
+              />
+              <div className="flex flex-col">
+                <span className="text-lg font-bold text-amber-600">Biblioteca San Carlo Borromeo</span>
+                <span className="text-sm text-cinema-accent">Admin Panel</span>
               </div>
             </div>
             <div className="flex items-center space-x-4">

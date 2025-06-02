@@ -54,7 +54,7 @@ export interface IStorage {
   markAttendance(memberId: number, filmId: number): Promise<Attendance>;
   checkExistingAttendance(memberId: number, filmId: number): Promise<Attendance | undefined>;
   getMemberAttendance(memberId: number): Promise<(Attendance & { filmTitle: string; filmDate: Date })[]>;
-  getFilmAttendance(filmId: number): Promise<(Attendance & { memberName: string })[]>;
+  getFilmAttendance(filmId: number): Promise<(Attendance & { memberFirstName: string; memberLastName: string })[]>;
 
   // Admins
   createAdmin(admin: InsertAdmin): Promise<Admin>;
@@ -234,7 +234,11 @@ export class DatabaseStorage implements IStorage {
       .where(eq(attendance.filmId, filmId))
       .orderBy(desc(attendance.attendedAt));
 
-    return attendanceRecords;
+    return attendanceRecords.map(record => ({
+      ...record,
+      memberFirstName: record.memberFirstName || 'Nome non disponibile',
+      memberLastName: record.memberLastName || 'Cognome non disponibile'
+    }));
   }
 
   async createAdmin(admin: InsertAdmin): Promise<Admin> {
